@@ -1,9 +1,12 @@
 import { createClient } from "@supabase/supabase-js";
 
-export const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
+const URL = import.meta.env.VITE_SUPABASE_URL;
+const KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+console.log("Supabase URL:", URL);
+console.log("Supabase KEY:", KEY ? "present" : "MISSING");
+
+export const supabase = createClient(URL, KEY);
 
 const ROW_ID = "blakey_family";
 
