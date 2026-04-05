@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { loadChecked, saveChecked } from "./supabase";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
@@ -222,19 +223,16 @@ export default function App() {
   const saveTimer = useRef(null);
 
   useEffect(() => {
-    try {
-      const r = localStorage.getItem("blakey_v2");
-      if (r) setChecked(JSON.parse(r));
-    } catch (_) {}
-    setReady(true);
+    loadChecked().then(data => {
+      setChecked(data);
+      setReady(true);
+    });
   }, []);
 
   useEffect(() => {
     if (!ready) return;
     clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(async () => {
-      try { localStorage.setItem("blakey_v2", JSON.stringify(checked)); } catch (_) {}
-    }, 400);
+    saveTimer.current = setTimeout(() => saveChecked(checked), 800);
   }, [checked, ready]);
 
   const toggle     = useCallback(id  => setChecked(p => ({ ...p, [id]: !p[id] })), []);
