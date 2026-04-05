@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { loadChecked, saveChecked } from "./supabase";
+import { supabase, loadChecked, saveChecked } from "./supabase";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
@@ -227,6 +227,17 @@ export default function App() {
       setChecked(data);
       setReady(true);
     });
+
+    const channel = supabase
+      .channel("progress-sync")
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "progress" },
+        payload => setChecked(payload.new.checked)
+      )
+      .subscribe();
+
+    return () => supabase.removeChannel(channel);
   }, []);
 
   useEffect(() => {
