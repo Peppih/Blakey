@@ -222,10 +222,12 @@ export default function App() {
   const [ready,   setReady]     = useState(false);
   const saveTimer  = useRef(null);
   const fromRemote = useRef(false);
+  const isLoaded   = useRef(false);
 
   useEffect(() => {
     loadChecked().then(data => {
       setChecked(data);
+      isLoaded.current = true;
       setReady(true);
     });
 
@@ -245,7 +247,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || !isLoaded.current) return;
     if (fromRemote.current) { fromRemote.current = false; return; }
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => saveChecked(checked), 800);
