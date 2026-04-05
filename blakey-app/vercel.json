@@ -1,0 +1,5 @@
+{
+  "buildCommand": "cd blakey_app && npm install && npm run build",
+  "outputDirectory": "blakey_app/dist",
+  "installCommand": "echo 'skip'"
+}

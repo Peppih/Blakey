@@ -215,30 +215,31 @@ function CircleProgress({ pct }) {
 }
 
 export default function App() {
-  const [checked, setChecked]   = useState({});
+  const [checked, setChecked]   = useState(() => {
+    try {
+      const saved = localStorage.getItem("blakey_v2");
+      return saved ? JSON.parse(saved) : {};
+    } catch (_) { return {}; }
+  });
   const [open,    setOpen]      = useState({ ph1: true });
   const [filter,  setFilter]    = useState("all");
-  const [ready,   setReady]     = useState(false);
   const saveTimer = useRef(null);
 
   useEffect(() => {
-    try {
-      const r = localStorage.getItem("blakey_v2");
-      if (r) setChecked(JSON.parse(r));
-    } catch (_) {}
-    setReady(true);
-  }, []);
-
-  useEffect(() => {
-    if (!ready) return;
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
       try { localStorage.setItem("blakey_v2", JSON.stringify(checked)); } catch (_) {}
     }, 400);
-  }, [checked, ready]);
+  }, [checked]);
 
   const toggle     = useCallback(id  => setChecked(p => ({ ...p, [id]: !p[id] })), []);
   const toggleOpen = useCallback(id  => setOpen(p    => ({ ...p, [id]: !p[id] })), []);
+  
+  const resetProgress = () => {
+    if (window.confirm("Are you sure you want to clear all progress?")) {
+      setChecked({});
+    }
+  };
 
   const done  = Object.values(checked).filter(Boolean).length;
   const pct   = Math.round((done / TOTAL) * 100);
@@ -249,13 +250,6 @@ export default function App() {
     if (filter === "pending") return !checked[t.id];
     return t.who === filter;
   };
-
-  if (!ready) return (
-    <div style={{ background: FOREST, minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center" }}>
-      <style>{CSS}</style>
-      <span style={{ fontFamily:"'Playfair Display',serif", color: GOLD, fontSize:18 }}>Loading your progress…</span>
-    </div>
-  );
 
   return (
     <div style={{ minHeight:"100vh", background: CREAM }}>
@@ -306,6 +300,12 @@ export default function App() {
                   <div style={{ fontSize:10, color:"rgba(255,255,255,.38)", textTransform:"uppercase", letterSpacing:1.2, marginTop:2 }}>{s.label}</div>
                 </div>
               ))}
+              <button 
+                onClick={resetProgress}
+                style={{ background: 'none', border: `1px solid ${GOLD}`, color: GOLD, borderRadius: 4, padding: '2px 8px', fontSize: 10, cursor: 'pointer', alignSelf: 'flex-start', marginTop: 4 }}
+              >
+                RESET
+              </button>
             </div>
           </div>
         </div>
