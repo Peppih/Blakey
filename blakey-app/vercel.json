@@ -1,6 +1,6 @@
 {
   "framework": "vite",
-  "buildCommand": "cd blakey_app && npm install && npm run build",
-  "outputDirectory": "blakey_app/dist",
+  "buildCommand": "npm install && npm run build",
+  "outputDirectory": "dist",
   "installCommand": "echo 'skip'"
 }
