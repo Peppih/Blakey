@@ -220,7 +220,8 @@ export default function App() {
   const [open,    setOpen]      = useState({ ph1: true });
   const [filter,  setFilter]    = useState("all");
   const [ready,   setReady]     = useState(false);
-  const saveTimer = useRef(null);
+  const saveTimer  = useRef(null);
+  const fromRemote = useRef(false);
 
   useEffect(() => {
     loadChecked().then(data => {
@@ -233,7 +234,10 @@ export default function App() {
       .on(
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "progress" },
-        payload => setChecked(payload.new.checked)
+        payload => {
+          fromRemote.current = true;
+          setChecked(payload.new.checked);
+        }
       )
       .subscribe();
 
@@ -242,6 +246,7 @@ export default function App() {
 
   useEffect(() => {
     if (!ready) return;
+    if (fromRemote.current) { fromRemote.current = false; return; }
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => saveChecked(checked), 800);
   }, [checked, ready]);
